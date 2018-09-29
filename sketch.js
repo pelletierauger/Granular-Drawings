@@ -3,7 +3,10 @@ let socket, cnvs, ctx, canvasDOM;
 let fileName = "./frames/sketch";
 let maxFrames = 20;
 let drawing = [];
-let JSONs;
+let drawings;
+let currentlyDrawing = false;
+let drawingIndex = 0;
+let selectedDrawing;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -18,7 +21,7 @@ function setup() {
         noLoop();
     }
     socket.on('pushJSONs', function(data) {
-        JSONs = data;
+        drawings = data;
     });
     socket.emit('pullJSONs', "");
 }
@@ -26,6 +29,19 @@ function setup() {
 function draw() {
     if (exporting && frameCount < maxFrames) {
         frameExport();
+    }
+    if (currentlyDrawing) {
+        for (let i = 0; i < 4; i++) {
+            let d = selectedDrawing.data;
+            let ind = drawingIndex;
+            if (drawingIndex < d.length) {
+                ellipse(d[ind][0], d[ind][1], 5);
+                drawingIndex++;
+            } else if (drawingIndex >= d.length) {
+                currentlyDrawing = false;
+            }
+        }
+
     }
 }
 
@@ -63,4 +79,9 @@ function keyPressed() {
     if (key == 'o' || key == 'O') {
         socket.emit('saveJSON', { data: drawing, path: "./drawings/drawing-" });
     }
+}
+
+function printDrawing() {
+    selectedDrawing = drawings[2];
+    currentlyDrawing = true;
 }
