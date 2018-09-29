@@ -2,7 +2,8 @@ let looping = true;
 let socket, cnvs, ctx, canvasDOM;
 let fileName = "./frames/sketch";
 let maxFrames = 20;
-let points = [];
+let drawing = [];
+let JSONs;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -16,6 +17,10 @@ function setup() {
     if (!looping) {
         noLoop();
     }
+    socket.on('pushJSONs', function(data) {
+        JSONs = data;
+    });
+    socket.emit('pullJSONs', "");
 }
 
 function draw() {
@@ -25,12 +30,12 @@ function draw() {
 }
 
 function mousePressed() {
-    points.push({ x: mouseX, y: mouseY });
+    drawing.push([mouseX, mouseY]);
     ellipse(mouseX, mouseY, 5);
 }
 
 function mouseDragged() {
-    points.push({ x: mouseX, y: mouseY });
+    drawing.push([mouseX, mouseY]);
     ellipse(mouseX, mouseY, 5);
 }
 
@@ -53,5 +58,9 @@ function keyPressed() {
     }
     if (key == 'm' || key == 'M') {
         redraw();
+    }
+    drawing
+    if (key == 'o' || key == 'O') {
+        socket.emit('saveJSON', { data: drawing, path: "./drawings/drawing-" });
     }
 }
