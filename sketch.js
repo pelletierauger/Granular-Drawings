@@ -2,6 +2,7 @@ let looping = true;
 let socket, cnvs, ctx, canvasDOM;
 let fileName = "./frames/sketch";
 let maxFrames = 20;
+let points = [];
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -9,8 +10,8 @@ function setup() {
     ctx = cnvs.drawingContext;
     canvasDOM = document.getElementById('defaultCanvas0');
     frameRate(30);
-    background(0);
-    fill(255, 50);
+    background(200);
+    fill(0, 150);
     noStroke();
     if (!looping) {
         noLoop();
@@ -18,15 +19,21 @@ function setup() {
 }
 
 function draw() {
-    for (let i = 0; i < 500; i++) {
-        let x = random(width);
-        let y = random(height);
-        ellipse(x, y, 5);
-    }
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
 }
+
+function mousePressed() {
+    points.push({ x: mouseX, y: mouseY });
+    ellipse(mouseX, mouseY, 5);
+}
+
+function mouseDragged() {
+    points.push({ x: mouseX, y: mouseY });
+    ellipse(mouseX, mouseY, 5);
+}
+
 
 function keyPressed() {
     if (keyCode === 32) {
